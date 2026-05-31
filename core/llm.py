@@ -186,7 +186,10 @@ def llm_generate(
             prompt=full_prompt,
             response_schema=schema,
             temperature=temperature,
-            system_instruction="You are a helpful medical information assistant. Provide structured, accurate responses."
+            system_instruction=(
+                "You are a helpful medical information assistant. "
+                "Provide structured, accurate responses."
+            )
         )
 
         logger.info(f"Successfully generated and validated {schema.__name__}")
@@ -211,7 +214,12 @@ def generate_with_text_fallback(
     schema_json = schema.model_json_schema()
     schema_description = json.dumps(schema_json, indent=2)
 
-    enhanced_prompt = f"""You are a medical information assistant. Respond with ONLY valid JSON matching the schema below.
+    # enhanced_prompt = (
+    #     "You are a medical information assistant. Respond with ONLY valid JSON matching the schema below."
+    # )
+
+    prompt_intro = "You are a medical information assistant. Respond with ONLY valid JSON matching the schema below."
+    enhanced_prompt = f"""{prompt_intro}
 
 SCHEMA:
 {schema_description}

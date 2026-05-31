@@ -247,7 +247,10 @@ def main():
     with st.form("assessment_form"):
         user_input = st.text_area(
             "Describe your symptoms in detail:",
-            placeholder="Example: I have had a severe headache for 3 days, along with fever and sensitivity to light...",
+            placeholder=(
+                "Example: I have had a severe headache for 3 days, "
+                "along with fever and sensitivity to light..."
+            ),
             height=150
         )
 

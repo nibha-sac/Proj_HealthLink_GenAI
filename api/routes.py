@@ -92,7 +92,7 @@ def assess_health(
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=validation_error
-        ) from e
+        )
 
     is_valid, validation_error = validate_user_input(request.user_input)
     if not is_valid:
@@ -100,7 +100,7 @@ def assess_health(
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=validation_error
-        ) from e
+        )
 
     settings = get_settings()
     logger.info(f"Processing request with input: {request.user_input[:100]}")
@@ -213,7 +213,7 @@ def get_doctor(
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail=f"Doctor with ID {doctor_id} not found"
-            ) from e
+            )
 
         return DoctorDB(
             id=doctor.id,

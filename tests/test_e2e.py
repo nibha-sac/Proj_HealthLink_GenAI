@@ -35,7 +35,14 @@ def test_health_check():
         )
 
         print_result(success, f"Health check - Status: {data['status']}")
-        print(f"  Services: LLM={data['services']['llm']}, DB={data['services']['database']}, RAG={data['services']['rag']}")
+        # print(
+        #     f"  Services: LLM={data['services']['llm']}, DB={data['services']['database']}, "
+        #     f"RAG={data['services']['rag']}"
+        # )
+        llm = data['services']['llm']
+        db = data['services']['database']
+        rag = data['services']['rag']
+        print(f"  Services: LLM={llm}, DB={db}, RAG={rag}")
         return success
     except Exception as e:
         print_result(False, f"Health check failed: {e}")
@@ -80,7 +87,13 @@ def test_assessment(scenario_name, user_input, expected_urgency=None):
         # Validate urgency if expected
         if expected_urgency:
             urgency_match = urgency.lower() == expected_urgency.lower()
-            print_result(urgency_match, f"Urgency level {'matches' if urgency_match else 'does not match'} expected ({expected_urgency})")
+        # print_result(
+        #     urgency_match,
+        #     f"Urgency level {'matches' if urgency_match else 'does not match'} expected "
+        #     f"({expected_urgency})"
+        # )
+        match_str = "matches" if urgency_match else "does not match"
+        print(f"  Urgency level {match_str} expected ({expected_urgency})")
 
         print_result(True, "Assessment completed successfully")
         return True

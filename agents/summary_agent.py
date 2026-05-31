@@ -129,7 +129,11 @@ The response should be structured, informative, and reassuring while maintaining
             key_findings=[
                 f"Primary complaint: {symptom_analysis.primary_complaint}",
                 f"Urgency level: {symptom_analysis.urgency_level}",
-                f"Recommended specialty: {doctor_recommendation.recommended_doctors[0].specialty if doctor_recommendation.recommended_doctors else 'General Practice'}"
+                "Recommended specialty: " + (
+                    doctor_recommendation.recommended_doctors[0].specialty
+                    if doctor_recommendation.recommended_doctors
+                    else "General Practice"
+                )
             ],
             recommended_actions=[
                 "Schedule an appointment with a recommended healthcare provider",
