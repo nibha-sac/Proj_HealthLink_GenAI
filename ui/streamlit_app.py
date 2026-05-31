@@ -63,7 +63,7 @@ def check_api_health():
     try:
         response = requests.get(f"{API_BASE_URL}/health", timeout=5)
         return response.status_code == 200
-    except:
+    except Exception:
         return False
 
 
@@ -95,10 +95,15 @@ def display_symptom_analysis(symptom_data):
     # Symptoms
     st.markdown("**Identified Symptoms:**")
     for symptom in symptom_data['symptoms']:
+        duration_text = (
+            f" (Duration: {symptom['duration']})"
+            if symptom.get('duration')
+            else ""
+        )
         st.markdown(
             f"<div class='symptom-box'>"
             f"• <strong>{symptom['name']}</strong> - Severity: {symptom['severity']}"
-            f"{f' (Duration: {symptom['duration']})' if symptom.get('duration') else ''}"
+            f"{duration_text}"
             f"</div>",
             unsafe_allow_html=True
         )
@@ -199,12 +204,21 @@ def main():
     """Main Streamlit application."""
 
     # Header
-    st.markdown("<h1 class='main-header'>🏥 HealthLink</h1>", unsafe_allow_html=True)
-    st.markdown("<p style='text-align: center; color: #666;'>Smart Health Management System</p>", unsafe_allow_html=True)
+    st.markdown(
+        "<h1 class='main-header'>🏥 HealthLink</h1>",
+        unsafe_allow_html=True
+    )
+    st.markdown(
+        "<p style='text-align: center; color: #666;'>Smart Health Management System</p>",
+        unsafe_allow_html=True
+    )
 
     # Check API health
     if not check_api_health():
-        st.error("⚠️ Cannot connect to HealthLink API. Please ensure the backend server is running.")
+        st.error(
+            "⚠️ Cannot connect to HealthLink API. "
+            "Please ensure the backend server is running."
+        )
         st.info("Start the backend server with: `python main.py`")
         return
 
@@ -224,7 +238,9 @@ def main():
         st.write("4. Schedule an appointment")
 
         st.markdown("---")
-        st.caption("⚠️ This is not a substitute for professional medical advice.")
+        st.caption(
+            "⚠️ This is not a substitute for professional medical advice."
+        )
 
     # Main content
     st.markdown("### Tell us about your health concern")
@@ -251,22 +267,33 @@ def main():
                 value=datetime.now() + timedelta(days=1)
             )
 
-        submit_button = st.form_submit_button("Get Assessment", use_container_width=True)
+        submit_button = st.form_submit_button(
+            "Get Assessment", use_container_width=True
+        )
 
     # Process submission
     if submit_button:
         if len(user_input.strip()) < 10:
-            st.error("Please provide more details about your symptoms (at least 10 characters)")
+            st.error(
+                "Please provide more details about your symptoms "
+                "(at least 10 characters)"
+            )
             return
 
         # Show loading
-        with st.spinner("Analyzing your symptoms... This may take a moment."):
+        with st.spinner(
+            "Analyzing your symptoms... This may take a moment."
+        ):
             try:
                 # Prepare request
                 request_data = {
                     "user_input": user_input,
                     "user_id": user_id if user_id else None,
-                    "preferred_date": preferred_date.strftime("%Y-%m-%d") if preferred_date else None
+                    "preferred_date": (
+                        preferred_date.strftime("%Y-%m-%d")
+                        if preferred_date
+                        else None
+                    )
                 }
 
                 # Call API
@@ -294,7 +321,9 @@ def main():
                         display_symptom_analysis(result['symptom_analysis'])
 
                     with tab2:
-                        display_doctor_recommendations(result['doctor_recommendations'])
+                        display_doctor_recommendations(
+                            result['doctor_recommendations']
+                        )
 
                     with tab3:
                         display_scheduling(result['scheduling_options'])
@@ -312,12 +341,21 @@ def main():
                     )
 
                 else:
-                    st.error(f"Error: {response.json().get('detail', 'Unknown error occurred')}")
+                    detail = response.json().get(
+                        'detail', 'Unknown error occurred'
+                    )
+                    st.error(f"Error: {detail}")
 
             except requests.exceptions.Timeout:
-                st.error("Request timed out. The system might be under heavy load. Please try again.")
+                st.error(
+                    "Request timed out. The system might be under heavy load. "
+                    "Please try again."
+                )
             except requests.exceptions.ConnectionError:
-                st.error("Cannot connect to the server. Please ensure the API is running.")
+                st.error(
+                    "Cannot connect to the server. "
+                    "Please ensure the API is running."
+                )
             except Exception as e:
                 st.error(f"An unexpected error occurred: {str(e)}")
 
