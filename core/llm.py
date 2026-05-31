@@ -280,11 +280,11 @@ def attempt_correction(data: Dict[str, Any], schema: Type[T], error: ValidationE
                     if field_info:
                         if field_info.default is not None:
                             corrected_data[field_name] = field_info.default
-                        elif field_info.annotation == str:
+                        elif field_info.annotation is str:
                             corrected_data[field_name] = ""
-                        elif field_info.annotation == list:
+                        elif field_info.annotation is list:
                             corrected_data[field_name] = []
-                        elif field_info.annotation == dict:
+                        elif field_info.annotation is dict:
                             corrected_data[field_name] = {}
 
         return schema(**corrected_data)

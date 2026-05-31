@@ -26,7 +26,7 @@ router = APIRouter()
 
 
 @router.get("/health", response_model=HealthCheckResponse, tags=["System"])
-def health_check(settings: Settings = Depends(get_settings)):
+def health_check(settings: Settings = Depends(get_settings)):  # noqa: B008
     """
     Health check endpoint.
 
@@ -92,7 +92,7 @@ def assess_health(
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=validation_error
-        )
+        ) from e
 
     is_valid, validation_error = validate_user_input(request.user_input)
     if not is_valid:
@@ -100,7 +100,7 @@ def assess_health(
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=validation_error
-        )
+        ) from e
 
     settings = get_settings()
     logger.info(f"Processing request with input: {request.user_input[:100]}")
@@ -213,7 +213,7 @@ def get_doctor(
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail=f"Doctor with ID {doctor_id} not found"
-            )
+            ) from e
 
         return DoctorDB(
             id=doctor.id,
@@ -257,7 +257,7 @@ def list_specialties():
         db_session_gen = get_db_session(settings)
         db_session = next(db_session_gen)
         doctors = get_all_doctors(db_session)
-        specialties = sorted(list(set(d.specialty for d in doctors)))
+        specialties = sorted({d.specialty for d in doctors})
 
         logger.info(f"Returning {len(specialties)} specialties")
         return specialties

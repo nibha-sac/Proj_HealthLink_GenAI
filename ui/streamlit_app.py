@@ -96,9 +96,7 @@ def display_symptom_analysis(symptom_data):
     st.markdown("**Identified Symptoms:**")
     for symptom in symptom_data['symptoms']:
         duration_text = (
-            f" (Duration: {symptom['duration']})"
-            if symptom.get('duration')
-            else ""
+           f"{' (Duration: ' + symptom['duration'] + ')' if symptom.get('duration') else ''}"
         )
         st.markdown(
             f"<div class='symptom-box'>"
@@ -125,7 +123,7 @@ def display_doctor_recommendations(doctor_data):
         return
 
     # Display doctors in columns
-    for idx, doctor in enumerate(doctor_data['recommended_doctors']):
+    for _idx, doctor in enumerate(doctor_data['recommended_doctors']):
         with st.container():
             st.markdown(
                 f"""

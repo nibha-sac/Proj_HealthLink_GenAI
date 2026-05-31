@@ -88,14 +88,8 @@ def scheduling_agent(
         from config.settings import get_settings
         settings = get_settings()
 
-    urgency_to_days = {
-        "emergency": 0,
-        "high": 1,
-        "medium": 3,
-        "low": 7
-    }
 
-    days_ahead = urgency_to_days.get(urgency_level, 3)
+    # urgency_to_days.get(urgency_level, 3)
 
     start_date = datetime.now().date()
     if preferred_date:

@@ -125,7 +125,7 @@ class VectorStore:
         embeddings = self.embedding_client.embed_texts(texts)
 
         vectors = []
-        for i, (doc, embedding) in enumerate(zip(documents, embeddings)):
+        for i, (doc, embedding) in enumerate(zip(documents, embeddings, strict=False)):
             vector_id = f"doc_{i}_{hash(doc.content)}"
             metadata = {
                 "content": doc.content,
