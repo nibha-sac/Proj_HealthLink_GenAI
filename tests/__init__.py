@@ -1,3 +1,0 @@
-"""
-HealthLink tests package.
-"""
