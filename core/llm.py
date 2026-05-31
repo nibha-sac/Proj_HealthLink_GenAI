@@ -7,6 +7,7 @@ Updated for:
 - LangChain 1.x (requires Python 3.10+)
 - langchain-google-genai 3.x
 """
+
 import json
 import logging
 from typing import Any, Dict, Optional, Type, TypeVar
@@ -22,7 +23,7 @@ from config.settings import Settings
 
 logger = logging.getLogger("healthlink.llm")
 
-T = TypeVar('T', bound=BaseModel)
+T = TypeVar("T", bound=BaseModel)
 
 
 class LLMClient:
@@ -47,7 +48,7 @@ class LLMClient:
         prompt: str,
         temperature: Optional[float] = None,
         max_tokens: Optional[int] = None,
-        system_instruction: Optional[str] = None
+        system_instruction: Optional[str] = None,
     ) -> str:
         """
         Generate text using Gemini model.
@@ -87,7 +88,7 @@ class LLMClient:
         prompt: str,
         response_schema: Type[T],
         temperature: Optional[float] = None,
-        system_instruction: Optional[str] = None
+        system_instruction: Optional[str] = None,
     ) -> T:
         """
         Generate structured output using LangChain's with_structured_output.
@@ -169,6 +170,7 @@ def llm_generate(
     """
     if client is None:
         from config.settings import get_settings
+
         settings = get_settings()
         client = get_llm_client(settings)
 
@@ -187,9 +189,8 @@ def llm_generate(
             response_schema=schema,
             temperature=temperature,
             system_instruction=(
-                "You are a helpful medical information assistant. "
-                "Provide structured, accurate responses."
-            )
+                "You are a helpful medical information assistant. Provide structured, accurate responses."
+            ),
         )
 
         logger.info(f"Successfully generated and validated {schema.__name__}")
@@ -201,11 +202,7 @@ def llm_generate(
 
 
 def generate_with_text_fallback(
-    client: LLMClient,
-    prompt: str,
-    schema: Type[T],
-    temperature: Optional[float],
-    context: Optional[str]
+    client: LLMClient, prompt: str, schema: Type[T], temperature: Optional[float], context: Optional[str]
 ) -> T:
     """
     Fallback method using text generation with JSON parsing.
@@ -278,10 +275,10 @@ def attempt_correction(data: Dict[str, Any], schema: Type[T], error: ValidationE
         corrected_data = data.copy()
 
         for err in error.errors():
-            field_path = err['loc']
-            error_type = err['type']
+            field_path = err["loc"]
+            error_type = err["type"]
 
-            if error_type == 'missing':
+            if error_type == "missing":
                 field_name = field_path[0] if field_path else None
                 if field_name:
                     field_info = schema.model_fields.get(field_name)
@@ -317,6 +314,7 @@ async def llm_generate_async(
     # Get client
     if client is None:
         from config.settings import get_settings
+
         settings = get_settings()
         client = get_llm_client(settings)
 

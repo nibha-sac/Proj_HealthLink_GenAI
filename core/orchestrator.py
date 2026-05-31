@@ -2,6 +2,7 @@
 Orchestrator for HealthLink agents.
 Coordinates execution of all agents in the correct sequence.
 """
+
 import logging
 import uuid
 from datetime import datetime
@@ -24,7 +25,7 @@ def orchestrate_health_assessment(
     request: HealthAssessmentRequest,
     db_session: Session,
     llm_client: Optional[LLMClient] = None,
-    settings: Optional[Settings] = None
+    settings: Optional[Settings] = None,
 ) -> HealthAssessmentResponse:
     """
     Orchestrate the complete health assessment pipeline.
@@ -57,16 +58,14 @@ def orchestrate_health_assessment(
     # Get settings if not provided
     if settings is None:
         from config.settings import get_settings
+
         settings = get_settings()
 
     try:
         # Step 1: Symptom Analysis
         logger.info(f"[{request_id}] Step 1/4: Analyzing symptoms")
         symptom_analysis = symptom_agent(
-            user_input=request.user_input,
-            llm_client=llm_client,
-            settings=settings,
-            use_rag=True
+            user_input=request.user_input, llm_client=llm_client, settings=settings, use_rag=True
         )
         logger.info(
             f"[{request_id}] Symptom analysis complete: "
@@ -81,11 +80,10 @@ def orchestrate_health_assessment(
             db_session=db_session,
             llm_client=llm_client,
             settings=settings,
-            max_recommendations=3
+            max_recommendations=3,
         )
         logger.info(
-            f"[{request_id}] Doctor recommendation complete: "
-            f"doctors={len(doctor_recommendation.recommended_doctors)}"
+            f"[{request_id}] Doctor recommendation complete: doctors={len(doctor_recommendation.recommended_doctors)}"
         )
 
         # Step 3: Scheduling
@@ -95,12 +93,9 @@ def orchestrate_health_assessment(
             urgency_level=symptom_analysis.urgency_level,
             llm_client=llm_client,
             settings=settings,
-            preferred_date=request.preferred_date
+            preferred_date=request.preferred_date,
         )
-        logger.info(
-            f"[{request_id}] Scheduling complete: "
-            f"slots={len(scheduling_recommendation.available_slots)}"
-        )
+        logger.info(f"[{request_id}] Scheduling complete: slots={len(scheduling_recommendation.available_slots)}")
 
         # Step 4: Summary Generation
         logger.info(f"[{request_id}] Step 4/4: Generating health summary")
@@ -109,7 +104,7 @@ def orchestrate_health_assessment(
             doctor_recommendation=doctor_recommendation,
             scheduling_recommendation=scheduling_recommendation,
             llm_client=llm_client,
-            settings=settings
+            settings=settings,
         )
         logger.info(f"[{request_id}] Summary generation complete")
 
@@ -124,18 +119,15 @@ def orchestrate_health_assessment(
             metadata={
                 "user_id": request.user_id,
                 "preferred_location": request.preferred_location,
-                "processing_time_ms": 0  # Could add timing here
-            }
+                "processing_time_ms": 0,  # Could add timing here
+            },
         )
 
         logger.info(f"[{request_id}] Health assessment orchestration complete")
         return response
 
     except Exception as e:
-        logger.error(
-            f"[{request_id}] Orchestration failed: {e}",
-            exc_info=True
-        )
+        logger.error(f"[{request_id}] Orchestration failed: {e}", exc_info=True)
         raise
 
 
@@ -143,7 +135,7 @@ async def orchestrate_health_assessment_async(
     request: HealthAssessmentRequest,
     db_session: Session,
     llm_client: Optional[LLMClient] = None,
-    settings: Optional[Settings] = None
+    settings: Optional[Settings] = None,
 ) -> HealthAssessmentResponse:
     """
     Async version of orchestrate_health_assessment.

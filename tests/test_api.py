@@ -1,6 +1,7 @@
 """
 Tests for HealthLink API endpoints.
 """
+
 import json
 from unittest.mock import Mock, patch
 
@@ -11,7 +12,7 @@ from core.schemas import HealthAssessmentResponse
 from main import app
 
 # Load mock outputs
-with open('tests/mock_llm_outputs.json', 'r') as f:
+with open("tests/mock_llm_outputs.json", "r") as f:
     MOCK_OUTPUTS = json.load(f)
 
 
@@ -24,16 +25,16 @@ def client():
 @pytest.fixture
 def mock_orchestrator():
     """Mock orchestrator response."""
-    with patch('api.routes.orchestrate_health_assessment') as mock:
+    with patch("api.routes.orchestrate_health_assessment") as mock:
         # Create mock response
         mock_response = {
             "request_id": "test-request-id",
             "timestamp": "2024-01-01T00:00:00",
-            "symptom_analysis": MOCK_OUTPUTS['symptom_extraction'],
-            "doctor_recommendations": MOCK_OUTPUTS['doctor_recommendation'],
-            "scheduling_options": MOCK_OUTPUTS['scheduling_recommendation'],
-            "health_summary": MOCK_OUTPUTS['health_summary'],
-            "metadata": {}
+            "symptom_analysis": MOCK_OUTPUTS["symptom_extraction"],
+            "doctor_recommendations": MOCK_OUTPUTS["doctor_recommendation"],
+            "scheduling_options": MOCK_OUTPUTS["scheduling_recommendation"],
+            "health_summary": MOCK_OUTPUTS["health_summary"],
+            "metadata": {},
         }
 
         mock.return_value = HealthAssessmentResponse(**mock_response)
@@ -49,9 +50,9 @@ class TestHealthEndpoint:
 
         assert response.status_code == 200
         data = response.json()
-        assert data['status'] == 'healthy'
-        assert 'version' in data
-        assert 'services' in data
+        assert data["status"] == "healthy"
+        assert "version" in data
+        assert "services" in data
 
 
 class TestAssessEndpoint:
@@ -62,24 +63,22 @@ class TestAssessEndpoint:
         request_data = {
             "user_input": "I have a severe headache and fever for 3 days",
             "user_id": "test-user",
-            "preferred_date": "2024-02-15"
+            "preferred_date": "2024-02-15",
         }
 
         response = client.post("/api/v1/assess", json=request_data)
 
         assert response.status_code == 200
         data = response.json()
-        assert 'request_id' in data
-        assert 'symptom_analysis' in data
-        assert 'doctor_recommendations' in data
-        assert 'scheduling_options' in data
-        assert 'health_summary' in data
+        assert "request_id" in data
+        assert "symptom_analysis" in data
+        assert "doctor_recommendations" in data
+        assert "scheduling_options" in data
+        assert "health_summary" in data
 
     def test_assess_invalid_short_input(self, client):
         """Test assessment with too short input."""
-        request_data = {
-            "user_input": "headache"
-        }
+        request_data = {"user_input": "headache"}
 
         response = client.post("/api/v1/assess", json=request_data)
 
@@ -87,10 +86,7 @@ class TestAssessEndpoint:
 
     def test_assess_invalid_date_format(self, client):
         """Test assessment with invalid date format."""
-        request_data = {
-            "user_input": "I have a severe headache and fever for 3 days",
-            "preferred_date": "invalid-date"
-        }
+        request_data = {"user_input": "I have a severe headache and fever for 3 days", "preferred_date": "invalid-date"}
 
         response = client.post("/api/v1/assess", json=request_data)
 
@@ -108,7 +104,7 @@ class TestAssessEndpoint:
 class TestDoctorsEndpoint:
     """Tests for doctors endpoints."""
 
-    @patch('api.routes.get_all_doctors')
+    @patch("api.routes.get_all_doctors")
     def test_list_all_doctors(self, mock_get_doctors, client):
         """Test listing all doctors."""
         # Setup mock
@@ -131,9 +127,9 @@ class TestDoctorsEndpoint:
         assert response.status_code == 200
         data = response.json()
         assert len(data) > 0
-        assert data[0]['name'] == "Test Doctor"
+        assert data[0]["name"] == "Test Doctor"
 
-    @patch('api.routes.get_doctors_by_specialty')
+    @patch("api.routes.get_doctors_by_specialty")
     def test_list_doctors_by_specialty(self, mock_get_by_specialty, client):
         """Test listing doctors filtered by specialty."""
         # Setup mock
@@ -156,9 +152,9 @@ class TestDoctorsEndpoint:
         assert response.status_code == 200
         data = response.json()
         assert len(data) > 0
-        assert data[0]['specialty'] == "Cardiology"
+        assert data[0]["specialty"] == "Cardiology"
 
-    @patch('api.routes.get_doctor_by_id')
+    @patch("api.routes.get_doctor_by_id")
     def test_get_doctor_by_id(self, mock_get_by_id, client):
         """Test getting doctor by ID."""
         # Setup mock
@@ -180,10 +176,10 @@ class TestDoctorsEndpoint:
 
         assert response.status_code == 200
         data = response.json()
-        assert data['id'] == 1
-        assert data['name'] == "Test Doctor"
+        assert data["id"] == 1
+        assert data["name"] == "Test Doctor"
 
-    @patch('api.routes.get_doctor_by_id')
+    @patch("api.routes.get_doctor_by_id")
     def test_get_doctor_not_found(self, mock_get_by_id, client):
         """Test getting non-existent doctor."""
         mock_get_by_id.return_value = None
@@ -196,7 +192,7 @@ class TestDoctorsEndpoint:
 class TestSpecialtiesEndpoint:
     """Tests for specialties endpoint."""
 
-    @patch('api.routes.get_all_doctors')
+    @patch("api.routes.get_all_doctors")
     def test_list_specialties(self, mock_get_doctors, client):
         """Test listing medical specialties."""
         # Setup mock
@@ -230,6 +226,6 @@ class TestRootEndpoint:
 
         assert response.status_code == 200
         data = response.json()
-        assert 'name' in data
-        assert 'version' in data
-        assert data['name'] == "HealthLink API"
+        assert "name" in data
+        assert "version" in data
+        assert data["name"] == "HealthLink API"

@@ -2,6 +2,7 @@
 Scheduling agent.
 Generates available appointment slots based on doctor recommendations.
 """
+
 import logging
 from datetime import date, datetime, timedelta
 from typing import List, Optional
@@ -14,10 +15,7 @@ logger = logging.getLogger("healthlink.agents.scheduling")
 
 
 def generate_time_slots(
-    doctor_name: str,
-    start_date: date,
-    num_days: int = 7,
-    slots_per_day: int = 8
+    doctor_name: str, start_date: date, num_days: int = 7, slots_per_day: int = 8
 ) -> List[TimeSlot]:
     """
     Generate mock available time slots for a doctor.
@@ -48,7 +46,7 @@ def generate_time_slots(
                 date=current_date.strftime("%Y-%m-%d"),
                 time=f"{hour:02d}:00",
                 duration_minutes=30,
-                slot_id=f"{doctor_name.replace(' ', '_')}_{current_date.strftime('%Y%m%d')}_{hour:02d}00"
+                slot_id=f"{doctor_name.replace(' ', '_')}_{current_date.strftime('%Y%m%d')}_{hour:02d}00",
             )
             slots.append(slot)
 
@@ -60,7 +58,7 @@ def scheduling_agent(
     urgency_level: str,
     llm_client: Optional[LLMClient] = None,
     settings: Optional[Settings] = None,
-    preferred_date: Optional[str] = None
+    preferred_date: Optional[str] = None,
 ) -> SchedulingRecommendation:
     """
     Generate scheduling recommendations based on doctor availability and urgency.
@@ -86,8 +84,8 @@ def scheduling_agent(
 
     if settings is None:
         from config.settings import get_settings
-        settings = get_settings()
 
+        settings = get_settings()
 
     # urgency_to_days.get(urgency_level, 3)
 
@@ -101,12 +99,7 @@ def scheduling_agent(
     all_slots = []
 
     for doctor in doctor_recommendation.recommended_doctors:
-        doctor_slots = generate_time_slots(
-            doctor_name=doctor.name,
-            start_date=start_date,
-            num_days=14,
-            slots_per_day=8
-        )
+        doctor_slots = generate_time_slots(doctor_name=doctor.name, start_date=start_date, num_days=14, slots_per_day=8)
         all_slots.extend(doctor_slots)
 
     if not all_slots:
@@ -114,14 +107,11 @@ def scheduling_agent(
         return SchedulingRecommendation(
             available_slots=[],
             recommended_slot=None,
-            scheduling_notes="No available appointments at this time. Please contact the clinic directly."
+            scheduling_notes="No available appointments at this time. Please contact the clinic directly.",
         )
 
     try:
-        slot_summary = "\n".join([
-            f"- {slot.doctor_name}: {slot.date} at {slot.time}"
-            for slot in all_slots[:10]
-        ])
+        slot_summary = "\n".join([f"- {slot.doctor_name}: {slot.date} at {slot.time}" for slot in all_slots[:10]])
 
         recommendation_prompt = f"""Select the best appointment slot based on these criteria:
 
@@ -150,16 +140,11 @@ Format:
             recommended_slot_id: str = Field(..., description="ID of recommended slot")
             scheduling_notes: str = Field(..., description="Scheduling notes")
 
-        selection = llm_generate(
-            prompt=recommendation_prompt,
-            schema=SlotSelection,
-            temperature=0.1,
-            client=llm_client
-        )
+        selection = llm_generate(prompt=recommendation_prompt, schema=SlotSelection, temperature=0.1, client=llm_client)
 
         recommended_slot = next(
             (slot for slot in all_slots if slot.slot_id == selection.recommended_slot_id),
-            all_slots[0] if all_slots else None
+            all_slots[0] if all_slots else None,
         )
 
         logger.info(f"Generated {len(all_slots)} available slots")
@@ -167,7 +152,7 @@ Format:
         return SchedulingRecommendation(
             available_slots=all_slots[:20],
             recommended_slot=recommended_slot,
-            scheduling_notes=selection.scheduling_notes
+            scheduling_notes=selection.scheduling_notes,
         )
 
     except Exception as e:
@@ -176,7 +161,7 @@ Format:
         return SchedulingRecommendation(
             available_slots=all_slots[:20],
             recommended_slot=all_slots[0] if all_slots else None,
-            scheduling_notes=f"First available appointment recommended. Urgency level: {urgency_level}"
+            scheduling_notes=f"First available appointment recommended. Urgency level: {urgency_level}",
         )
 
 
@@ -185,17 +170,11 @@ async def scheduling_agent_async(
     urgency_level: str,
     llm_client: Optional[LLMClient] = None,
     settings: Optional[Settings] = None,
-    preferred_date: Optional[str] = None
+    preferred_date: Optional[str] = None,
 ) -> SchedulingRecommendation:
     """
     Async version of scheduling_agent.
 
     Note: Currently wraps synchronous implementation.
     """
-    return scheduling_agent(
-        doctor_recommendation,
-        urgency_level,
-        llm_client,
-        settings,
-        preferred_date
-    )
+    return scheduling_agent(doctor_recommendation, urgency_level, llm_client, settings, preferred_date)

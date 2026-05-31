@@ -2,6 +2,7 @@
 API routes for HealthLink.
 FastAPI endpoints for health assessment and related operations.
 """
+
 import logging
 from typing import List
 
@@ -37,28 +38,19 @@ def health_check(settings: Settings = Depends(get_settings)):  # noqa: B008
     services_status = {
         "llm": "healthy" if settings.gemini_api_key else "unavailable",
         "database": "healthy",
-        "rag": "healthy"
+        "rag": "healthy",
     }
 
-    return HealthCheckResponse(
-        status="healthy",
-        version="1.0.0",
-        services=services_status
-    )
+    return HealthCheckResponse(status="healthy", version="1.0.0", services=services_status)
 
 
 @router.post(
     "/assess",
     response_model=HealthAssessmentResponse,
-    responses={
-        400: {"model": ErrorResponse},
-        500: {"model": ErrorResponse}
-    },
-    tags=["Assessment"]
+    responses={400: {"model": ErrorResponse}, 500: {"model": ErrorResponse}},
+    tags=["Assessment"],
 )
-def assess_health(
-    request: HealthAssessmentRequest
-):
+def assess_health(request: HealthAssessmentRequest):
     """
     Main health assessment endpoint.
 
@@ -89,34 +81,26 @@ def assess_health(
     is_valid, validation_error = validate_assessment_request(request)
     if not is_valid:
         logger.warning(f"Invalid request: {validation_error}")
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=validation_error
-        )
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=validation_error)
 
     is_valid, validation_error = validate_user_input(request.user_input)
     if not is_valid:
         logger.warning(f"Invalid user input: {validation_error}")
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=validation_error
-        )
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=validation_error)
 
     settings = get_settings()
     logger.info(f"Processing request with input: {request.user_input[:100]}")
 
     try:
         from core.database import get_db_session
+
         db_session_gen = get_db_session(settings)
         db_session = next(db_session_gen)
 
         llm_client = get_llm_client(settings)
 
         response = orchestrate_health_assessment(
-            request=request,
-            db_session=db_session,
-            llm_client=llm_client,
-            settings=settings
+            request=request, db_session=db_session, llm_client=llm_client, settings=settings
         )
 
         logger.info(f"Assessment complete [request_id={response.request_id}]")
@@ -126,7 +110,7 @@ def assess_health(
         logger.error(f"Assessment failed: {str(e)}", exc_info=True)
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="An error occurred processing your request. Please try again."
+            detail="An error occurred processing your request. Please try again.",
         ) from e
 
 
@@ -136,10 +120,7 @@ async def test_simple():
     return {"message": "test works"}
 
 
-@router.get(
-    "/doctors",
-    tags=["Doctors"]
-)
+@router.get("/doctors", tags=["Doctors"])
 def list_doctors():
     """
     List available doctors.
@@ -151,6 +132,7 @@ def list_doctors():
 
     try:
         from core.database import get_db_session
+
         settings = get_settings()
         db_session = next(get_db_session(settings))
         doctors = get_all_doctors(db_session)
@@ -165,7 +147,7 @@ def list_doctors():
                 availability=d.availability,
                 location=d.location,
                 email=d.email,
-                phone=d.phone
+                phone=d.phone,
             )
             for d in doctors
         ]
@@ -176,20 +158,14 @@ def list_doctors():
     except Exception as e:
         logger.error(f"Failed to list doctors: {e}", exc_info=True)
         raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Failed to retrieve doctors"
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Failed to retrieve doctors"
         ) from e
 
 
 @router.get(
-    "/doctors/{doctor_id}",
-    response_model=DoctorDB,
-    responses={404: {"model": ErrorResponse}},
-    tags=["Doctors"]
+    "/doctors/{doctor_id}", response_model=DoctorDB, responses={404: {"model": ErrorResponse}}, tags=["Doctors"]
 )
-def get_doctor(
-    doctor_id: int
-):
+def get_doctor(doctor_id: int):
     """
     Get doctor by ID.
 
@@ -203,6 +179,7 @@ def get_doctor(
 
     try:
         from core.database import get_db_session, get_doctor_by_id
+
         settings = get_settings()
         db_session_gen = get_db_session(settings)
         db_session = next(db_session_gen)
@@ -210,10 +187,7 @@ def get_doctor(
 
         if not doctor:
             logger.warning(f"Doctor not found: {doctor_id}")
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail=f"Doctor with ID {doctor_id} not found"
-            )
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Doctor with ID {doctor_id} not found")
 
         return DoctorDB(
             id=doctor.id,
@@ -224,7 +198,7 @@ def get_doctor(
             availability=doctor.availability,
             location=doctor.location,
             email=doctor.email,
-            phone=doctor.phone
+            phone=doctor.phone,
         )
 
     except HTTPException:
@@ -232,16 +206,11 @@ def get_doctor(
     except Exception as e:
         logger.error(f"Failed to get doctor: {e}", exc_info=True)
         raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Failed to retrieve doctor"
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Failed to retrieve doctor"
         ) from e
 
 
-@router.get(
-    "/specialties",
-    response_model=List[str],
-    tags=["Doctors"]
-)
+@router.get("/specialties", response_model=List[str], tags=["Doctors"])
 def list_specialties():
     """
     List all available medical specialties.
@@ -253,6 +222,7 @@ def list_specialties():
 
     try:
         from core.database import get_db_session
+
         settings = get_settings()
         db_session_gen = get_db_session(settings)
         db_session = next(db_session_gen)
@@ -265,6 +235,5 @@ def list_specialties():
     except Exception as e:
         logger.error(f"Failed to list specialties: {e}", exc_info=True)
         raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Failed to retrieve specialties"
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Failed to retrieve specialties"
         ) from e

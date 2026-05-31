@@ -1,6 +1,7 @@
 """
 Input validation utilities for HealthLink.
 """
+
 import re
 from datetime import datetime
 from typing import Tuple
@@ -43,7 +44,7 @@ def validate_phone(phone: str) -> Tuple[bool, str]:
         return False, "Phone number is required"
 
     # Remove common separators
-    cleaned = re.sub(r'[\s\-\(\)]', '', phone)
+    cleaned = re.sub(r"[\s\-\(\)]", "", phone)
 
     # Check if it's all digits and appropriate length
     if not cleaned.isdigit():

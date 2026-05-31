@@ -7,6 +7,7 @@ Updated for:
 - langchain-google-genai 3.x
 - Pinecone client 3.x
 """
+
 import json
 import logging
 from time import sleep
@@ -30,15 +31,11 @@ class EmbeddingClient:
         self.model_name = settings.embedding_model_name
 
         self.embeddings = GoogleGenerativeAIEmbeddings(
-            model=self.model_name,
-            google_api_key=settings.gemini_api_key,
-            task_type="retrieval_document"
+            model=self.model_name, google_api_key=settings.gemini_api_key, task_type="retrieval_document"
         )
 
         self.query_embeddings = GoogleGenerativeAIEmbeddings(
-            model=self.model_name,
-            google_api_key=settings.gemini_api_key,
-            task_type="retrieval_query"
+            model=self.model_name, google_api_key=settings.gemini_api_key, task_type="retrieval_query"
         )
 
         logger.info(f"Embedding client initialized with model: {self.model_name}")
@@ -99,10 +96,7 @@ class VectorStore:
                 name=self.index_name,
                 dimension=self.dimension,
                 metric="cosine",
-                spec=ServerlessSpec(
-                    cloud="aws",
-                    region=self.settings.pinecone_environment or "us-east-1"
-                )
+                spec=ServerlessSpec(cloud="aws", region=self.settings.pinecone_environment or "us-east-1"),
             )
             sleep(1)
 
@@ -127,19 +121,12 @@ class VectorStore:
         vectors = []
         for i, (doc, embedding) in enumerate(zip(documents, embeddings, strict=False)):
             vector_id = f"doc_{i}_{hash(doc.content)}"
-            metadata = {
-                "content": doc.content,
-                **(doc.metadata or {})
-            }
-            vectors.append({
-                "id": vector_id,
-                "values": embedding,
-                "metadata": metadata
-            })
+            metadata = {"content": doc.content, **(doc.metadata or {})}
+            vectors.append({"id": vector_id, "values": embedding, "metadata": metadata})
 
         batch_size = 100
         for i in range(0, len(vectors), batch_size):
-            batch = vectors[i:i + batch_size]
+            batch = vectors[i : i + batch_size]
             self.index.upsert(vectors=batch)
             logger.info(f"Upserted batch {i // batch_size + 1} ({len(batch)} vectors)")
 
@@ -158,11 +145,7 @@ class VectorStore:
         """
         query_embedding = self.embedding_client.embed_text(query, is_query=True)
 
-        search_results = self.index.query(
-            vector=query_embedding,
-            top_k=k,
-            include_metadata=True
-        )
+        search_results = self.index.query(vector=query_embedding, top_k=k, include_metadata=True)
 
         results = []
         scores = []
@@ -176,11 +159,7 @@ class VectorStore:
 
         logger.info(f"Retrieved {len(results)} documents for query: {query[:50]}...")
 
-        return RetrievalResult(
-            documents=results,
-            scores=scores,
-            query=query
-        )
+        return RetrievalResult(documents=results, scores=scores, query=query)
 
     def delete_all(self) -> None:
         """Delete all vectors from the index."""
@@ -193,7 +172,7 @@ class VectorStore:
         return {
             "total_vector_count": stats.total_vector_count,
             "dimension": stats.dimension,
-            "index_fullness": stats.index_fullness
+            "index_fullness": stats.index_fullness,
         }
 
 
@@ -265,7 +244,7 @@ def load_knowledge_base(file_path: str, settings: Settings) -> None:
     logger.info(f"Loading knowledge base from {file_path}")
 
     try:
-        with open(file_path, 'r') as f:
+        with open(file_path, "r") as f:
             data = json.load(f)
 
         documents = []
@@ -273,8 +252,8 @@ def load_knowledge_base(file_path: str, settings: Settings) -> None:
         if isinstance(data, list):
             for item in data:
                 if isinstance(item, dict):
-                    content = item.get('content', '') or item.get('text', '')
-                    metadata = {k: v for k, v in item.items() if k not in ['content', 'text']}
+                    content = item.get("content", "") or item.get("text", "")
+                    metadata = {k: v for k, v in item.items() if k not in ["content", "text"]}
                 else:
                     content = str(item)
                     metadata = {}
@@ -287,10 +266,7 @@ def load_knowledge_base(file_path: str, settings: Settings) -> None:
         elif isinstance(data, dict):
             for key, value in data.items():
                 content = value if isinstance(value, str) else json.dumps(value)
-                documents.append(Document(
-                    content=content,
-                    metadata={"source": key}
-                ))
+                documents.append(Document(content=content, metadata={"source": key}))
 
         vector_store = get_vector_store(settings)
         vector_store.add_documents(documents)
@@ -316,6 +292,7 @@ def retrieve_relevant_docs(query: str, k: int = 5, settings: Optional[Settings] 
     """
     if settings is None:
         from config.settings import get_settings
+
         settings = get_settings()
 
     vector_store = get_vector_store(settings)
@@ -339,7 +316,7 @@ def format_retrieval_context(retrieval_result: RetrievalResult, max_docs: int = 
     context_parts = ["Relevant medical knowledge:"]
 
     for i, doc in enumerate(retrieval_result.documents[:max_docs]):
-        context_parts.append(f"\n[Source {i+1}]")
+        context_parts.append(f"\n[Source {i + 1}]")
         context_parts.append(doc.content)
         if doc.metadata:
             context_parts.append(f"Metadata: {json.dumps(doc.metadata)}")

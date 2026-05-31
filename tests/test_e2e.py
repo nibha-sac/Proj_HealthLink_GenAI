@@ -3,6 +3,7 @@
 End-to-End Testing Script for HealthLink
 Tests all API endpoints and workflows
 """
+
 import time
 from datetime import datetime
 
@@ -10,16 +11,19 @@ import requests
 
 BASE_URL = "http://localhost:8000"
 
+
 def print_header(text):
     """Print a formatted header"""
     print("\n" + "=" * 80)
     print(f"  {text}")
     print("=" * 80)
 
+
 def print_result(success, message):
     """Print test result"""
     status = "✅ PASS" if success else "❌ FAIL"
     print(f"{status}: {message}")
+
 
 def test_health_check():
     """Test health check endpoint"""
@@ -28,25 +32,22 @@ def test_health_check():
         response = requests.get(f"{BASE_URL}/api/v1/health")
         data = response.json()
 
-        success = (
-            response.status_code == 200 and
-            data["status"] == "healthy" and
-            all(data["services"].values())
-        )
+        success = response.status_code == 200 and data["status"] == "healthy" and all(data["services"].values())
 
         print_result(success, f"Health check - Status: {data['status']}")
         # print(
         #     f"  Services: LLM={data['services']['llm']}, DB={data['services']['database']}, "
         #     f"RAG={data['services']['rag']}"
         # )
-        llm = data['services']['llm']
-        db = data['services']['database']
-        rag = data['services']['rag']
+        llm = data["services"]["llm"]
+        db = data["services"]["database"]
+        rag = data["services"]["rag"]
         print(f"  Services: LLM={llm}, DB={db}, RAG={rag}")
         return success
     except Exception as e:
         print_result(False, f"Health check failed: {e}")
         return False
+
 
 def test_assessment(scenario_name, user_input, expected_urgency=None):
     """Test health assessment endpoint"""
@@ -55,7 +56,7 @@ def test_assessment(scenario_name, user_input, expected_urgency=None):
         payload = {
             "user_input": user_input,
             "user_id": f"test_user_{int(time.time())}",
-            "session_id": f"session_{int(time.time())}"
+            "session_id": f"session_{int(time.time())}",
         }
 
         print(f"Input: {user_input}")
@@ -101,8 +102,10 @@ def test_assessment(scenario_name, user_input, expected_urgency=None):
     except Exception as e:
         print_result(False, f"Assessment failed: {e}")
         import traceback
+
         traceback.print_exc()
         return False
+
 
 def test_doctors_endpoint():
     """Test doctors listing endpoint"""
@@ -122,6 +125,7 @@ def test_doctors_endpoint():
         print_result(False, f"Doctors endpoint failed: {e}")
         return False
 
+
 def test_specialties_endpoint():
     """Test specialties listing endpoint"""
     print_header("TEST: Specialties Endpoint")
@@ -140,6 +144,7 @@ def test_specialties_endpoint():
         print_result(False, f"Specialties endpoint failed: {e}")
         return False
 
+
 def run_all_tests():
     """Run all end-to-end tests"""
     print("\n" + "🏥" * 40)
@@ -154,35 +159,41 @@ def run_all_tests():
     time.sleep(1)
 
     # Test 2: Low urgency scenario
-    results.append(test_assessment(
-        "Low Urgency - Common Cold",
-        "I have a runny nose, mild cough, and slight fever for 2 days",
-        expected_urgency="low"
-    ))
+    results.append(
+        test_assessment(
+            "Low Urgency - Common Cold",
+            "I have a runny nose, mild cough, and slight fever for 2 days",
+            expected_urgency="low",
+        )
+    )
     time.sleep(2)
 
     # Test 3: Medium urgency scenario
-    results.append(test_assessment(
-        "Medium Urgency - Persistent Pain",
-        "I've had lower back pain for a week that's getting worse when I sit",
-        expected_urgency="medium"
-    ))
+    results.append(
+        test_assessment(
+            "Medium Urgency - Persistent Pain",
+            "I've had lower back pain for a week that's getting worse when I sit",
+            expected_urgency="medium",
+        )
+    )
     time.sleep(2)
 
     # Test 4: High urgency scenario
-    results.append(test_assessment(
-        "High Urgency - Severe Symptoms",
-        "I have severe chest pain and shortness of breath that started an hour ago",
-        expected_urgency="high"
-    ))
+    results.append(
+        test_assessment(
+            "High Urgency - Severe Symptoms",
+            "I have severe chest pain and shortness of breath that started an hour ago",
+            expected_urgency="high",
+        )
+    )
     time.sleep(2)
 
     # Test 5: Skin condition
-    results.append(test_assessment(
-        "Dermatology - Rash",
-        "I have a red itchy rash on my arms that appeared 3 days ago",
-        expected_urgency=None
-    ))
+    results.append(
+        test_assessment(
+            "Dermatology - Rash", "I have a red itchy rash on my arms that appeared 3 days ago", expected_urgency=None
+        )
+    )
     time.sleep(2)
 
     # Test 6: Doctors endpoint
@@ -201,7 +212,7 @@ def run_all_tests():
     print(f"\nTotal Tests: {total}")
     print(f"✅ Passed: {passed}")
     print(f"❌ Failed: {failed}")
-    print(f"Success Rate: {(passed/total)*100:.1f}%")
+    print(f"Success Rate: {(passed / total) * 100:.1f}%")
 
     if failed == 0:
         print("\n🎉 ALL TESTS PASSED! HealthLink is working perfectly!")
@@ -211,6 +222,7 @@ def run_all_tests():
     print(f"\nEnd time: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
 
     return failed == 0
+
 
 if __name__ == "__main__":
     success = run_all_tests()

@@ -2,6 +2,7 @@
 HealthLink - Smart Health Management System
 Main FastAPI application entry point.
 """
+
 import os
 from contextlib import asynccontextmanager
 
@@ -31,14 +32,14 @@ async def lifespan(app: FastAPI):
         db_manager = get_db_manager(settings)
         logger.info("Database initialized successfully")
 
-
         from core.database import seed_doctors
 
         doctors_file = "./data/doctors.csv"
         if os.path.exists(doctors_file):
             import pandas as pd
+
             doctors_df = pd.read_csv(doctors_file)
-            doctors_data = doctors_df.to_dict('records')
+            doctors_data = doctors_df.to_dict("records")
 
             with db_manager.session_scope() as session:
                 seed_doctors(session, doctors_data)
@@ -73,7 +74,7 @@ app = FastAPI(
     version="1.0.0",
     docs_url="/docs",
     redoc_url="/redoc",
-    lifespan=lifespan
+    lifespan=lifespan,
 )
 
 app.add_middleware(
@@ -94,8 +95,8 @@ async def global_exception_handler(request, exc):
         content={
             "error": "Internal Server Error",
             "message": "An unexpected error occurred. Please try again later.",
-            "detail": str(exc) if settings.log_level == "DEBUG" else None
-        }
+            "detail": str(exc) if settings.log_level == "DEBUG" else None,
+        },
     )
 
 
@@ -110,7 +111,7 @@ async def root():
         "version": "1.0.0",
         "description": "Smart Health Management System",
         "docs": "/docs",
-        "health": "/api/v1/health"
+        "health": "/api/v1/health",
     }
 
 
@@ -124,5 +125,5 @@ if __name__ == "__main__":
         host=settings.api_host,
         port=settings.api_port,
         reload=settings.api_reload,
-        log_level=settings.log_level.lower()
+        log_level=settings.log_level.lower(),
     )

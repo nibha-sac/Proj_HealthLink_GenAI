@@ -2,6 +2,7 @@
 Simple logging configuration for HealthLink.
 Uses Python's built-in logging - no external dependencies needed.
 """
+
 import logging
 import sys
 
@@ -26,8 +27,7 @@ def setup_logging(log_level: str = "INFO") -> logging.Logger:
 
     # Simple, clean text formatter
     formatter = logging.Formatter(
-        fmt='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-        datefmt='%Y-%m-%d %H:%M:%S'
+        fmt="%(asctime)s - %(name)s - %(levelname)s - %(message)s", datefmt="%Y-%m-%d %H:%M:%S"
     )
 
     handler.setFormatter(formatter)

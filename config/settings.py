@@ -2,6 +2,7 @@
 Configuration settings for HealthLink using Pydantic Settings.
 All settings loaded from environment variables with sensible defaults.
 """
+
 from typing import List
 
 from pydantic_settings import BaseSettings, SettingsConfigDict
@@ -10,12 +11,7 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 class Settings(BaseSettings):
     """Application settings loaded from environment variables."""
 
-    model_config = SettingsConfigDict(
-        env_file=".env",
-        env_file_encoding="utf-8",
-        case_sensitive=False,
-        extra="ignore"
-    )
+    model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8", case_sensitive=False, extra="ignore")
 
     # LLM Configuration (Gemini only - using langchain-google-genai)
     gemini_api_key: str = ""

@@ -2,6 +2,7 @@
 Doctor recommendation agent.
 Recommends appropriate doctors based on symptoms and specialty match.
 """
+
 import logging
 from typing import Optional
 
@@ -23,7 +24,7 @@ def convert_doctor_model_to_schema(doctor_model: DoctorModel) -> Doctor:
         experience_years=doctor_model.experience_years,
         rating=doctor_model.rating,
         availability=doctor_model.availability,
-        location=doctor_model.location
+        location=doctor_model.location,
     )
 
 
@@ -32,7 +33,7 @@ def doctor_agent(
     db_session: Session,
     llm_client: Optional[LLMClient] = None,
     settings: Optional[Settings] = None,
-    max_recommendations: int = 3
+    max_recommendations: int = 3,
 ) -> DoctorRecommendation:
     """
     Recommend doctors based on symptom analysis.
@@ -59,12 +60,13 @@ def doctor_agent(
 
     if settings is None:
         from config.settings import get_settings
+
         settings = get_settings()
 
     specialty_prompt = f"""Based on the following symptom analysis, determine the most appropriate medical specialty.
 
 Primary Complaint: {symptom_analysis.primary_complaint}
-Symptoms: {', '.join([f"{s.name} ({s.severity})" for s in symptom_analysis.symptoms])}
+Symptoms: {", ".join([f"{s.name} ({s.severity})" for s in symptom_analysis.symptoms])}
 Urgency: {symptom_analysis.urgency_level}
 
 Common specialties include:
@@ -93,33 +95,20 @@ Return in this format:
         from pydantic import BaseModel, Field
 
         class SpecialtyRecommendation(BaseModel):
-            recommended_specialty: str = Field(
-                ..., description="Recommended medical specialty"
-            )
-            specialty_rationale: str = Field(
-                ..., description="Why this specialty is appropriate"
-            )
-            match_score: float = Field(
-                ..., ge=0, le=1, description="Confidence score"
-            )
+            recommended_specialty: str = Field(..., description="Recommended medical specialty")
+            specialty_rationale: str = Field(..., description="Why this specialty is appropriate")
+            match_score: float = Field(..., ge=0, le=1, description="Confidence score")
 
         specialty_result = llm_generate(
-            prompt=specialty_prompt,
-            schema=SpecialtyRecommendation,
-            temperature=0.2,
-            client=llm_client
+            prompt=specialty_prompt, schema=SpecialtyRecommendation, temperature=0.2, client=llm_client
         )
 
         logger.info(f"Recommended specialty: {specialty_result.recommended_specialty}")
 
-        doctors_db = get_doctors_by_specialty(
-            db_session, specialty_result.recommended_specialty
-        )
+        doctors_db = get_doctors_by_specialty(db_session, specialty_result.recommended_specialty)
 
         if not doctors_db:
-            logger.warning(
-                f"No doctors found for specialty: {specialty_result.recommended_specialty}"
-            )
+            logger.warning(f"No doctors found for specialty: {specialty_result.recommended_specialty}")
             doctors_db = get_all_doctors(db_session)
 
         doctors = [convert_doctor_model_to_schema(d) for d in doctors_db]
@@ -132,7 +121,7 @@ Return in this format:
             return DoctorRecommendation(
                 recommended_doctors=[],
                 specialty_rationale="No doctors currently available. Please contact our support team.",
-                match_score=0.0
+                match_score=0.0,
             )
 
         logger.info(f"Recommended {len(recommended_doctors)} doctors")
@@ -140,7 +129,7 @@ Return in this format:
         return DoctorRecommendation(
             recommended_doctors=recommended_doctors,
             specialty_rationale=specialty_result.specialty_rationale,
-            match_score=specialty_result.match_score
+            match_score=specialty_result.match_score,
         )
 
     except Exception as e:
@@ -157,14 +146,14 @@ Return in this format:
             return DoctorRecommendation(
                 recommended_doctors=doctors[:max_recommendations],
                 specialty_rationale="General practitioners recommended due to system error.",
-                match_score=0.5
+                match_score=0.5,
             )
         except Exception as fallback_error:
             logger.error(f"Fallback also failed: {fallback_error}")
             return DoctorRecommendation(
                 recommended_doctors=[],
                 specialty_rationale="Unable to retrieve doctor recommendations at this time.",
-                match_score=0.0
+                match_score=0.0,
             )
 
 
@@ -173,13 +162,11 @@ async def doctor_agent_async(
     db_session: Session,
     llm_client: Optional[LLMClient] = None,
     settings: Optional[Settings] = None,
-    max_recommendations: int = 3
+    max_recommendations: int = 3,
 ) -> DoctorRecommendation:
     """
     Async version of doctor_agent.
 
     Note: Currently wraps synchronous implementation.
     """
-    return doctor_agent(
-        symptom_analysis, db_session, llm_client, settings, max_recommendations
-    )
+    return doctor_agent(symptom_analysis, db_session, llm_client, settings, max_recommendations)

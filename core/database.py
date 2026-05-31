@@ -2,6 +2,7 @@
 Database module for HealthLink.
 Uses SQLAlchemy with SQLite for local storage.
 """
+
 import logging
 from contextlib import contextmanager
 from datetime import date, datetime
@@ -29,6 +30,7 @@ Base = declarative_base()
 
 class DoctorModel(Base):
     """Doctor database model."""
+
     __tablename__ = "doctors"
 
     id = Column(Integer, primary_key=True, autoincrement=True)
@@ -48,6 +50,7 @@ class DoctorModel(Base):
 
 class AppointmentModel(Base):
     """Appointment database model."""
+
     __tablename__ = "appointments"
 
     id = Column(Integer, primary_key=True, autoincrement=True)
@@ -63,6 +66,7 @@ class AppointmentModel(Base):
 
 class SessionLogModel(Base):
     """Session log for tracking user interactions."""
+
     __tablename__ = "session_logs"
 
     id = Column(Integer, primary_key=True, autoincrement=True)
@@ -81,7 +85,7 @@ class DatabaseManager:
         self.engine = create_engine(
             settings.database_url,
             echo=settings.db_echo,
-            connect_args={"check_same_thread": False} if "sqlite" in settings.database_url else {}
+            connect_args={"check_same_thread": False} if "sqlite" in settings.database_url else {},
         )
         self.SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=self.engine)
         self._initialized = False
@@ -178,9 +182,7 @@ def get_doctors_by_specialty(session: Session, specialty: str) -> List[DoctorMod
     Returns:
         List of matching doctors
     """
-    return session.query(DoctorModel).filter(
-        DoctorModel.specialty.ilike(f"%{specialty}%")
-    ).all()
+    return session.query(DoctorModel).filter(DoctorModel.specialty.ilike(f"%{specialty}%")).all()
 
 
 def get_doctor_by_id(session: Session, doctor_id: int) -> Optional[DoctorModel]:
@@ -203,7 +205,7 @@ def create_appointment(
     doctor_id: int,
     appointment_date: date,
     appointment_time: str,
-    notes: Optional[str] = None
+    notes: Optional[str] = None,
 ) -> AppointmentModel:
     """
     Create a new appointment.
@@ -225,7 +227,7 @@ def create_appointment(
         appointment_date=appointment_date,
         appointment_time=appointment_time,
         status="scheduled",
-        notes=notes
+        notes=notes,
     )
     session.add(appointment)
     session.commit()
@@ -246,17 +248,16 @@ def get_appointments_by_user(session: Session, user_id: str) -> List[Appointment
     Returns:
         List of appointments
     """
-    return session.query(AppointmentModel).filter(
-        AppointmentModel.user_id == user_id
-    ).order_by(AppointmentModel.appointment_date.desc()).all()
+    return (
+        session.query(AppointmentModel)
+        .filter(AppointmentModel.user_id == user_id)
+        .order_by(AppointmentModel.appointment_date.desc())
+        .all()
+    )
 
 
 def log_session(
-    session: Session,
-    user_id: str,
-    request_id: str,
-    user_input: str,
-    response: Optional[str] = None
+    session: Session, user_id: str, request_id: str, user_input: str, response: Optional[str] = None
 ) -> SessionLogModel:
     """
     Log a user session interaction.
@@ -271,12 +272,7 @@ def log_session(
     Returns:
         Created session log
     """
-    log = SessionLogModel(
-        user_id=user_id,
-        request_id=request_id,
-        user_input=user_input,
-        response=response
-    )
+    log = SessionLogModel(user_id=user_id, request_id=request_id, user_input=user_input, response=response)
     session.add(log)
     session.commit()
     session.refresh(log)

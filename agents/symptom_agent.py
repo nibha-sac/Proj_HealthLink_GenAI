@@ -3,6 +3,7 @@ Symptom extraction agent.
 Analyzes user input to extract symptoms, severity, and urgency.
 Supports multi-turn conversations with clarifying questions.
 """
+
 import logging
 from typing import Optional
 
@@ -15,10 +16,7 @@ logger = logging.getLogger("healthlink.agents.symptom")
 
 
 def symptom_agent(
-    user_input: str,
-    llm_client: Optional[LLMClient] = None,
-    settings: Optional[Settings] = None,
-    use_rag: bool = True
+    user_input: str, llm_client: Optional[LLMClient] = None, settings: Optional[Settings] = None, use_rag: bool = True
 ) -> SymptomExtraction:
     """
     Extract symptoms and assess urgency from user input.
@@ -43,6 +41,7 @@ def symptom_agent(
 
     if settings is None:
         from config.settings import get_settings
+
         settings = get_settings()
 
     context = ""
@@ -73,18 +72,10 @@ Be conservative with urgency assessment - if uncertain, err on the side of highe
 
     try:
         result = llm_generate(
-            prompt=prompt,
-            schema=SymptomExtraction,
-            temperature=0.2,
-            context=context,
-            client=llm_client
+            prompt=prompt, schema=SymptomExtraction, temperature=0.2, context=context, client=llm_client
         )
 
-        logger.info(
-            f"Symptom extraction complete: "
-            f"{len(result.symptoms)} symptoms, "
-            f"urgency={result.urgency_level}"
-        )
+        logger.info(f"Symptom extraction complete: {len(result.symptoms)} symptoms, urgency={result.urgency_level}")
 
         return result
 
@@ -94,15 +85,12 @@ Be conservative with urgency assessment - if uncertain, err on the side of highe
             symptoms=[],
             primary_complaint=user_input[:100],
             urgency_level="medium",
-            additional_context="Error occurred during symptom analysis. Please consult a healthcare provider."
+            additional_context="Error occurred during symptom analysis. Please consult a healthcare provider.",
         )
 
 
 async def symptom_agent_async(
-    user_input: str,
-    llm_client: Optional[LLMClient] = None,
-    settings: Optional[Settings] = None,
-    use_rag: bool = True
+    user_input: str, llm_client: Optional[LLMClient] = None, settings: Optional[Settings] = None, use_rag: bool = True
 ) -> SymptomExtraction:
     """
     Async version of symptom_agent.
