@@ -240,7 +240,7 @@ TASK:
         response_dict = json.loads(cleaned_response)
     except json.JSONDecodeError as e:
         logger.error(f"JSON decode error: {e}. Response: {cleaned_response}")
-        raise ValueError(f"LLM returned invalid JSON: {str(e)}")
+        raise ValueError(f"LLM returned invalid JSON: {str(e)}") from e
 
     try:
         validated_output = schema(**response_dict)

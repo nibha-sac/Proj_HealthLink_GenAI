@@ -129,7 +129,7 @@ def assess_health(
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="An error occurred processing your request. Please try again."
-        )
+        ) from e
 
 
 @router.get("/test_simple", tags=["Debug"])
@@ -180,7 +180,7 @@ def list_doctors():
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Failed to retrieve doctors"
-        )
+        ) from e
 
 
 @router.get(
@@ -236,7 +236,7 @@ def get_doctor(
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Failed to retrieve doctor"
-        )
+        ) from e
 
 
 @router.get(
@@ -269,4 +269,4 @@ def list_specialties():
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Failed to retrieve specialties"
-        )
+        ) from e
