@@ -93,9 +93,15 @@ Return in this format:
         from pydantic import BaseModel, Field
 
         class SpecialtyRecommendation(BaseModel):
-            recommended_specialty: str = Field(..., description="Recommended medical specialty")
-            specialty_rationale: str = Field(..., description="Why this specialty is appropriate")
-            match_score: float = Field(..., ge=0, le=1, description="Confidence score")
+            recommended_specialty: str = Field(
+                ..., description="Recommended medical specialty"
+            )
+            specialty_rationale: str = Field(
+                ..., description="Why this specialty is appropriate"
+            )
+            match_score: float = Field(
+                ..., ge=0, le=1, description="Confidence score"
+            )
 
         specialty_result = llm_generate(
             prompt=specialty_prompt,
@@ -106,10 +112,14 @@ Return in this format:
 
         logger.info(f"Recommended specialty: {specialty_result.recommended_specialty}")
 
-        doctors_db = get_doctors_by_specialty(db_session, specialty_result.recommended_specialty)
+        doctors_db = get_doctors_by_specialty(
+            db_session, specialty_result.recommended_specialty
+        )
 
         if not doctors_db:
-            logger.warning(f"No doctors found for specialty: {specialty_result.recommended_specialty}")
+            logger.warning(
+                f"No doctors found for specialty: {specialty_result.recommended_specialty}"
+            )
             doctors_db = get_all_doctors(db_session)
 
         doctors = [convert_doctor_model_to_schema(d) for d in doctors_db]
@@ -170,4 +180,6 @@ async def doctor_agent_async(
 
     Note: Currently wraps synchronous implementation.
     """
-    return doctor_agent(symptom_analysis, db_session, llm_client, settings, max_recommendations)
+    return doctor_agent(
+        symptom_analysis, db_session, llm_client, settings, max_recommendations
+    )
