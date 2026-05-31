@@ -3,6 +3,7 @@ Configuration settings for HealthLink using Pydantic Settings.
 All settings loaded from environment variables with sensible defaults.
 """
 from typing import List
+
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 

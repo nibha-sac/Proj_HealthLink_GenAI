@@ -3,16 +3,24 @@ Database module for HealthLink.
 Uses SQLAlchemy with SQLite for local storage.
 """
 import logging
-from typing import List, Optional, Dict, Any
-from datetime import datetime, date
 from contextlib import contextmanager
+from datetime import date, datetime
+from typing import Any, Dict, List, Optional
 
-from sqlalchemy import create_engine, Column, Integer, String, Float, DateTime, Date, Text
+from sqlalchemy import (
+    Column,
+    Date,
+    DateTime,
+    Float,
+    Integer,
+    String,
+    Text,
+    create_engine,
+)
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker, Session
+from sqlalchemy.orm import Session, sessionmaker
 
 from config.settings import Settings
-
 
 logger = logging.getLogger("healthlink.database")
 

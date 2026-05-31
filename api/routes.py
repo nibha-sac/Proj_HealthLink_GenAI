@@ -3,24 +3,22 @@ API routes for HealthLink.
 FastAPI endpoints for health assessment and related operations.
 """
 import logging
-from typing import List, Optional
-from fastapi import APIRouter, Depends, HTTPException, Query, status
-from sqlalchemy.orm import Session
+from typing import List
+
+from fastapi import APIRouter, Depends, HTTPException, status
 
 from config.settings import Settings, get_settings
-from config.logging import get_logger
-from core.llm import LLMClient, get_llm_client
-from core.database import get_db_session, get_all_doctors, DoctorModel
+from core.database import get_all_doctors
+from core.llm import get_llm_client
+from core.orchestrator import orchestrate_health_assessment, validate_assessment_request
 from core.schemas import (
+    DoctorDB,
+    ErrorResponse,
     HealthAssessmentRequest,
     HealthAssessmentResponse,
     HealthCheckResponse,
-    ErrorResponse,
-    DoctorDB
 )
-from core.orchestrator import orchestrate_health_assessment, validate_assessment_request
 from utils.validators import validate_user_input
-
 
 logger = logging.getLogger("healthlink.api")
 
@@ -111,7 +109,7 @@ def assess_health(
         from core.database import get_db_session
         db_session_gen = get_db_session(settings)
         db_session = next(db_session_gen)
-        
+
         llm_client = get_llm_client(settings)
 
         response = orchestrate_health_assessment(
@@ -204,7 +202,7 @@ def get_doctor(
     logger.info(f"Getting doctor with ID: {doctor_id}")
 
     try:
-        from core.database import get_doctor_by_id, get_db_session
+        from core.database import get_db_session, get_doctor_by_id
         settings = get_settings()
         db_session_gen = get_db_session(settings)
         db_session = next(db_session_gen)

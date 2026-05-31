@@ -1,14 +1,14 @@
 """
 Tests for HealthLink API endpoints.
 """
+import json
+from unittest.mock import Mock, patch
+
 import pytest
 from fastapi.testclient import TestClient
-from unittest.mock import patch, Mock
-import json
 
-from main import app
 from core.schemas import HealthAssessmentResponse
-
+from main import app
 
 # Load mock outputs
 with open('tests/mock_llm_outputs.json', 'r') as f:

@@ -3,13 +3,12 @@ Scheduling agent.
 Generates available appointment slots based on doctor recommendations.
 """
 import logging
-from typing import Optional, List
-from datetime import datetime, timedelta, date
+from datetime import date, datetime, timedelta
+from typing import List, Optional
 
-from core.llm import llm_generate, LLMClient
-from core.schemas import DoctorRecommendation, SchedulingRecommendation, TimeSlot
 from config.settings import Settings
-
+from core.llm import LLMClient, llm_generate
+from core.schemas import DoctorRecommendation, SchedulingRecommendation, TimeSlot
 
 logger = logging.getLogger("healthlink.agents.scheduling")
 

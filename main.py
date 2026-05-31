@@ -2,7 +2,6 @@
 HealthLink - Smart Health Management System
 Main FastAPI application entry point.
 """
-import logging
 import os
 from contextlib import asynccontextmanager
 
@@ -10,12 +9,11 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
-from config.settings import get_settings
-from config.logging import setup_logging
 from api.routes import router
+from config.logging import setup_logging
+from config.settings import get_settings
 from core.database import get_db_manager
 from core.rag import load_knowledge_base
-
 
 settings = get_settings()
 logger = setup_logging(log_level=settings.log_level)
@@ -33,8 +31,8 @@ async def lifespan(app: FastAPI):
         db_manager = get_db_manager(settings)
         logger.info("Database initialized successfully")
 
+
         from core.database import seed_doctors
-        import json
 
         doctors_file = "./data/doctors.csv"
         if os.path.exists(doctors_file):

@@ -3,10 +3,10 @@
 End-to-End Testing Script for HealthLink
 Tests all API endpoints and workflows
 """
-import requests
-import json
 import time
 from datetime import datetime
+
+import requests
 
 BASE_URL = "http://localhost:8000"
 
@@ -67,7 +67,7 @@ def test_assessment(scenario_name, user_input, expected_urgency=None):
         doctor_name = doctors[0]["name"] if doctors else "None"
         slot = data["scheduling_options"]["recommended_slot"]
 
-        print(f"\nResults:")
+        print("\nResults:")
         print(f"  Symptoms detected: {len(symptoms)}")
         for sym in symptoms[:3]:  # Show first 3
             print(f"    - {sym['name']}: {sym['severity']} ({sym['duration']})")

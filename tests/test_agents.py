@@ -1,16 +1,21 @@
 """
 Tests for HealthLink agents.
 """
-import pytest
 import json
-from unittest.mock import Mock, patch, MagicMock
+from unittest.mock import MagicMock, Mock, patch
 
-from core.schemas import SymptomExtraction, DoctorRecommendation, SchedulingRecommendation, HealthSummary
-from agents.symptom_agent import symptom_agent
+import pytest
+
 from agents.doctor_agent import doctor_agent
 from agents.scheduling_agent import scheduling_agent
 from agents.summary_agent import summary_agent
-
+from agents.symptom_agent import symptom_agent
+from core.schemas import (
+    DoctorRecommendation,
+    HealthSummary,
+    SchedulingRecommendation,
+    SymptomExtraction,
+)
 
 # Load mock outputs
 with open('tests/mock_llm_outputs.json', 'r') as f:
@@ -112,7 +117,7 @@ class TestDoctorAgent:
              patch('agents.doctor_agent.get_doctors_by_specialty') as mock_get_doctors:
 
             # Setup mocks
-            from pydantic import BaseModel, Field
+            from pydantic import BaseModel
 
             class MockSpecialtyRec(BaseModel):
                 recommended_specialty: str
@@ -159,7 +164,7 @@ class TestSchedulingAgent:
         """Test scheduling recommendation."""
         with patch('agents.scheduling_agent.llm_generate') as mock_generate:
             # Setup mock
-            from pydantic import BaseModel, Field
+            from pydantic import BaseModel
 
             class MockSlotSelection(BaseModel):
                 recommended_slot_id: str

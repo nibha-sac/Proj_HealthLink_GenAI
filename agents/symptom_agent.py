@@ -4,14 +4,12 @@ Analyzes user input to extract symptoms, severity, and urgency.
 Supports multi-turn conversations with clarifying questions.
 """
 import logging
-from typing import Optional, List, Dict, Any
-import json
+from typing import Optional
 
-from core.llm import llm_generate, LLMClient
-from core.rag import retrieve_relevant_docs, format_retrieval_context
-from core.schemas import SymptomExtraction
 from config.settings import Settings
-
+from core.llm import LLMClient, llm_generate
+from core.rag import format_retrieval_context, retrieve_relevant_docs
+from core.schemas import SymptomExtraction
 
 logger = logging.getLogger("healthlink.agents.symptom")
 

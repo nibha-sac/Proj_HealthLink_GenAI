@@ -3,15 +3,14 @@ Doctor recommendation agent.
 Recommends appropriate doctors based on symptoms and specialty match.
 """
 import logging
-from typing import Optional, List
+from typing import Optional
 
 from sqlalchemy.orm import Session
 
-from core.llm import llm_generate, LLMClient
-from core.schemas import SymptomExtraction, DoctorRecommendation, Doctor
-from core.database import get_all_doctors, get_doctors_by_specialty, DoctorModel
 from config.settings import Settings
-
+from core.database import DoctorModel, get_all_doctors, get_doctors_by_specialty
+from core.llm import LLMClient, llm_generate
+from core.schemas import Doctor, DoctorRecommendation, SymptomExtraction
 
 logger = logging.getLogger("healthlink.agents.doctor")
 

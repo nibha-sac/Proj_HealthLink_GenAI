@@ -2,10 +2,10 @@
 Pydantic schemas for HealthLink.
 All data validation and structured outputs use these models.
 """
-from typing import List, Optional, Dict, Any
-from datetime import datetime, date
-from pydantic import BaseModel, Field, validator
+from datetime import date, datetime
+from typing import Any, Dict, List, Optional
 
+from pydantic import BaseModel, Field
 
 # ==================== Agent Input/Output Models ====================
 

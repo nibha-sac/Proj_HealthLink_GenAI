@@ -5,15 +5,14 @@ Creates comprehensive health summary from all agent outputs.
 import logging
 from typing import Optional
 
-from core.llm import llm_generate, LLMClient
-from core.schemas import (
-    SymptomExtraction,
-    DoctorRecommendation,
-    SchedulingRecommendation,
-    HealthSummary
-)
 from config.settings import Settings
-
+from core.llm import LLMClient, llm_generate
+from core.schemas import (
+    DoctorRecommendation,
+    HealthSummary,
+    SchedulingRecommendation,
+    SymptomExtraction,
+)
 
 logger = logging.getLogger("healthlink.agents.summary")
 

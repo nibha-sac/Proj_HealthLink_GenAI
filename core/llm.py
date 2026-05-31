@@ -9,16 +9,16 @@ Updated for:
 """
 import json
 import logging
-from typing import Type, TypeVar, Optional, Dict, Any
-from pydantic import BaseModel, ValidationError
-from tenacity import retry, stop_after_attempt, wait_exponential
+from typing import Any, Dict, Optional, Type, TypeVar
+
+from langchain_core.messages import AIMessage, HumanMessage, SystemMessage
 
 # LangChain 1.x imports
 from langchain_google_genai import ChatGoogleGenerativeAI
-from langchain_core.messages import HumanMessage, SystemMessage, AIMessage
+from pydantic import BaseModel, ValidationError
+from tenacity import retry, stop_after_attempt, wait_exponential
 
 from config.settings import Settings
-
 
 logger = logging.getLogger("healthlink.llm")
 

@@ -2,13 +2,12 @@
 HealthLink Streamlit UI
 User-friendly interface for health assessment system.
 """
-import streamlit as st
-import requests
 import json
 import os
 from datetime import datetime, timedelta
-import plotly.graph_objects as go
 
+import requests
+import streamlit as st
 
 # Configuration
 API_BASE_URL = os.getenv("API_BASE_URL", "http://localhost:8000/api/v1")
@@ -176,7 +175,7 @@ def display_health_summary(summary_data):
     st.subheader("📝 Health Summary")
 
     # Main summary
-    st.markdown(f"**Assessment Summary:**")
+    st.markdown("**Assessment Summary:**")
     st.write(summary_data['summary'])
 
     # Key findings

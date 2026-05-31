@@ -2,8 +2,8 @@
 Input validation utilities for HealthLink.
 """
 import re
-from typing import Tuple, Optional
 from datetime import datetime
+from typing import Tuple
 
 
 def validate_email(email: str) -> Tuple[bool, str]:

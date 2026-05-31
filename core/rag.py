@@ -9,16 +9,15 @@ Updated for:
 """
 import json
 import logging
-from typing import List, Optional, Dict, Any
 from time import sleep
+from typing import Any, Dict, List, Optional
 
-from pinecone import Pinecone, ServerlessSpec
-from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_google_genai import GoogleGenerativeAIEmbeddings
+from langchain_text_splitters import RecursiveCharacterTextSplitter
+from pinecone import Pinecone, ServerlessSpec
 
 from config.settings import Settings
 from core.schemas import Document, RetrievalResult
-
 
 logger = logging.getLogger("healthlink.rag")
 
